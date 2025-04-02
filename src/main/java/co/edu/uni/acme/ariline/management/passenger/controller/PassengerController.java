@@ -17,7 +17,7 @@ public class PassengerController {
     private final ICreatePassengerService iCreatePassengerService;
 
     @PostMapping("create")
-    public ResponseEntity<String> createPassager(@RequestBody CreatePassengerDto passenger) {
+    public ResponseEntity<String> createPassenger(@RequestBody CreatePassengerDto passenger) {
         boolean isCreate = iCreatePassengerService.createPassenger(passenger);
         return ResponseEntity.status(isCreate ? 200 : 400).body(isCreate ? "Se creo correctamente el passager" : "No se creo el passager");
     }

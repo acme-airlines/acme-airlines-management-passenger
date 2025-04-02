@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Import;
 
 import co.edu.uni.acme.aerolinea.commons.configuration.ResourceServerConfig;
 
-@SpringBootApplication(scanBasePackages = "co.edu.uni.acme.aerolinea")
+@SpringBootApplication(scanBasePackages = {"co.edu.uni.acme.aerolinea", "co.edu.uni.acme.ariline"})
 @EntityScan("co.edu.uni.acme.aerolinea")
-@ComponentScan(basePackages = {"co.edu.uni.acme.aerolinea"})
+@ComponentScan(basePackages = {"co.edu.uni.acme.aerolinea", "co.edu.uni.acme.ariline"})
 @Import(ResourceServerConfig.class)
 public class PassengerApplication {
 
