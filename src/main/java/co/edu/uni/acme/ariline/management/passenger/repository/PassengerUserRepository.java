@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PassengerUserRepository extends JpaRepository<PassengerEntity,String> {
+public interface PassengerUserRepository extends JpaRepository<PassengerEntity, String> {
 
+    int countByCodeFlightFk_CodeFlight(String codeFlight);
 }

@@ -22,10 +22,13 @@ public class PassengerController {
     private final IPassengerService iPassengerService;
 
     @PostMapping("create")
-    public ResponseEntity<String> createPassenger(@RequestBody CreatePassengerDto passenger) {
-        boolean isCreate = iCreatePassengerService.createPassenger(passenger);
-        return ResponseEntity.status(isCreate ? 200 : 400).body(isCreate ? "Se creo correctamente el passager" : "No se creo el passager");
+    public ResponseEntity<Map<String, String>> createPassenger(@Valid @RequestBody CreatePassengerDto passenger) {
+        iCreatePassengerService.createPassenger(passenger);
+        return ResponseEntity
+                .status(201)
+                .body(Map.of("message", "✅ El pasajero fue creado correctamente"));
     }
+
 
     @GetMapping
     public ResponseEntity<List<PassengerDTO>> getAllPassengers() {

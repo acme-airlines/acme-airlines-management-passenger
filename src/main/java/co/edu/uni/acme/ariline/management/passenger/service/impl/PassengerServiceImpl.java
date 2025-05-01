@@ -8,6 +8,7 @@ import co.edu.uni.acme.aerolinea.commons.utils.mappers.TypeDocumentMapper;
 import co.edu.uni.acme.ariline.management.passenger.repository.DocumentTypeRepository;
 import co.edu.uni.acme.ariline.management.passenger.repository.PassengerUserRepository;
 import co.edu.uni.acme.ariline.management.passenger.service.IPassengerService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -54,28 +55,25 @@ public class PassengerServiceImpl implements IPassengerService {
     }
 
     @Override
-    public void updatePassenger(String code, PassengerDTO dto) {
-        PassengerEntity existing = passengerRepository.findById(code)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PASSENGER_NOT_FOUND));
+    @Transactional
+    public void updatePassenger(String codePassenger, PassengerDTO dto) {
+        PassengerEntity existing = passengerRepository.findById(codePassenger)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pasajero no encontrado"));
 
-        validatePassenger(dto);
+        // Conserva la contraseña original si no se proporciona una nueva
+        if (dto.getHashPassword() == null || dto.getHashPassword().isBlank()) {
+            dto.setHashPassword(existing.getHashPassword());
+        }
 
-        existing.setNamePassenger(dto.getNamePassenger());
-        existing.setLastNamePassenger(dto.getLastNamePassenger());
-        existing.setPhonePassenger(dto.getPhonePassenger());
-        existing.setNumberDocumentPassenger(dto.getNumberDocumentPassenger());
-        existing.setEmailPassenger(dto.getEmailPassenger());
-        existing.setBirthDate(dto.getBirthDate());
-        existing.setGenderPassenger(dto.getGenderPassenger());
-        existing.setHashPassword(dto.getHashPassword());
+        // También puedes mantener otros datos inmutables si aplica
+        dto.setCodePassenger(codePassenger);
+        dto.setCreationDate(existing.getCreationDate());
+        //dto.setCodeFlightFk(existing.getCodeFlightFk());
 
-        String documentTypeCode = dto.getDocumentTypePassengerFk().getCodeTypeDocument();
-        DocumentTypeEntity documentType = documentTypeRepository.findById(documentTypeCode)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, DOCUMENT_TYPE_NOT_FOUND));
-        existing.setDocumentTypePassengerFk(documentType);
-
-        passengerRepository.save(existing);
+        PassengerEntity updated = passengerMapper.dtoToEntity(dto);
+        passengerRepository.save(updated);
     }
+
 
     private void validatePassenger(PassengerDTO dto) {
         if (dto.getNamePassenger() == null || dto.getNamePassenger().trim().isEmpty()) {
