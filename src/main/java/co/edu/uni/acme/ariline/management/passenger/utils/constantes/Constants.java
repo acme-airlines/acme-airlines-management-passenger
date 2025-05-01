@@ -1,4 +1,4 @@
-package co.edu.uni.acme.airline.passenger.module.utils.constantes;
+package co.edu.uni.acme.ariline.management.passenger.utils.constantes;
 
 public class Constants {
 

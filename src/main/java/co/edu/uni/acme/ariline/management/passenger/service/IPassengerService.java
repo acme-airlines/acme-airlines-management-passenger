@@ -1,4 +1,4 @@
-package co.edu.uni.acme.airline.passenger.module.service;
+package co.edu.uni.acme.ariline.management.passenger.service;
 
 import co.edu.uni.acme.aerolinea.commons.dto.PassengerDTO;
 
@@ -6,13 +6,6 @@ import java.util.List;
 
 public interface IPassengerService {
 
-    /**
-     * Registra un nuevo pasajero con validaciones aplicadas.
-     *
-     * @param passengerDTO Datos del pasajero a registrar.
-     */
-
-    PassengerDTO registerPassenger(PassengerDTO passengerDTO);
 
     /**
      * Actualiza un pasajero existente por código único.

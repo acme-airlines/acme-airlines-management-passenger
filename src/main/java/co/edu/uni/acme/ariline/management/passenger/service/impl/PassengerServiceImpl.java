@@ -1,15 +1,13 @@
-package co.edu.uni.acme.airline.passenger.module.service.Impl;
+package co.edu.uni.acme.ariline.management.passenger.service.impl;
 
 import co.edu.uni.acme.aerolinea.commons.dto.PassengerDTO;
 import co.edu.uni.acme.aerolinea.commons.entity.DocumentTypeEntity;
 import co.edu.uni.acme.aerolinea.commons.entity.PassengerEntity;
 import co.edu.uni.acme.aerolinea.commons.utils.mappers.PassengerMapper;
 import co.edu.uni.acme.aerolinea.commons.utils.mappers.TypeDocumentMapper;
-import co.edu.uni.acme.airline.passenger.module.repository.PassengerRepository;
-import co.edu.uni.acme.airline.passenger.module.repository.DocumentTypeRepository;
-import co.edu.uni.acme.airline.passenger.module.service.IPassengerService;
-import jakarta.validation.ValidationException;
-import lombok.RequiredArgsConstructor;
+import co.edu.uni.acme.ariline.management.passenger.repository.DocumentTypeRepository;
+import co.edu.uni.acme.ariline.management.passenger.repository.PassengerUserRepository;
+import co.edu.uni.acme.ariline.management.passenger.service.IPassengerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,39 +16,21 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
-import static co.edu.uni.acme.airline.passenger.module.utils.constantes.Constants.*;
+import static co.edu.uni.acme.ariline.management.passenger.utils.constantes.Constants.*;
 
 @Service
 public class PassengerServiceImpl implements IPassengerService {
 
-    private final PassengerRepository passengerRepository;
+    private final PassengerUserRepository passengerRepository;
     private final DocumentTypeRepository documentTypeRepository;
     private final TypeDocumentMapper typeDocumentMapper;
     private final PassengerMapper passengerMapper;
 
-    public PassengerServiceImpl(PassengerRepository passengerRepository, DocumentTypeRepository documentTypeRepository, TypeDocumentMapper typeDocumentMapper, PassengerMapper passengerMapper) {
+    public PassengerServiceImpl(PassengerUserRepository passengerRepository, DocumentTypeRepository documentTypeRepository, TypeDocumentMapper typeDocumentMapper, PassengerMapper passengerMapper) {
         this.passengerRepository = passengerRepository;
         this.documentTypeRepository = documentTypeRepository;
         this.typeDocumentMapper = typeDocumentMapper;
         this.passengerMapper = passengerMapper;
-    }
-
-    @Override
-    public PassengerDTO registerPassenger(PassengerDTO dto) {
-        validatePassenger(dto);
-        PassengerEntity entity = passengerMapper.dtoToEntity(dto);
-        entity.setCreationDate(LocalDate.now());
-
-        String documentTypeCode = dto.getDocumentTypePassengerFk().getCodeTypeDocument();
-        DocumentTypeEntity documentType = documentTypeRepository.findById(documentTypeCode)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, DOCUMENT_TYPE_NOT_FOUND));
-        entity.setDocumentTypePassengerFk(documentType);
-
-        PassengerEntity saved = passengerRepository.save(entity);
-        if (saved == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo crear el pasajero.");
-        }
-        return passengerMapper.entityToDto(saved);
     }
 
     @Override
