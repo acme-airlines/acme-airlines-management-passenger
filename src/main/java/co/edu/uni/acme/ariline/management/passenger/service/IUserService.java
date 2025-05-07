@@ -1,26 +1,27 @@
 package co.edu.uni.acme.ariline.management.passenger.service;
 
-import co.edu.uni.acme.aerolinea.commons.dto.PassengerDTO;
+
+import co.edu.uni.acme.aerolinea.commons.dto.UserDTO;
 
 import java.util.List;
 
-public interface IPassengerService {
+public interface IUserService {
 
 
     /**
      * Actualiza un pasajero existente por código único.
      *
      * @param code         Código del pasajero a actualizar.
-     * @param passengerDTO Nuevos datos del pasajero.
+     * @param userDTO Nuevos datos del usuario.
      */
-    void updatePassenger(String code, PassengerDTO passengerDTO);
+    void updateUser(String code, UserDTO userDTO);
 
     /**
      * Obtiene todos los pasajeros registrados.
      *
-     * @return Lista de pasajeros.
+     * @return Lista de usuarios.
      */
-    List<PassengerDTO> getAllPassengers();
+    List<UserDTO> getAllUsers();
 
     /**
      * Obtiene un pasajero por su código único.
@@ -28,13 +29,13 @@ public interface IPassengerService {
      * @param code Código del pasajero.
      * @return El DTO del pasajero si existe.
      */
-    PassengerDTO getPassengerByCode(String code);
+    UserDTO getUserByCode(String code);
 
     /**
      * Elimina un pasajero por código.
      *
      * @param code Código del pasajero a eliminar.
      */
-    void deletePassenger(String code);
+    void deleteUser(String code);
 }
 
