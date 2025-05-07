@@ -4,7 +4,6 @@ import co.edu.uni.acme.aerolinea.commons.entity.FlightEntity;
 import co.edu.uni.acme.aerolinea.commons.entity.UserEntity;
 import co.edu.uni.acme.aerolinea.commons.utils.mappers.UserMapper;
 import co.edu.uni.acme.ariline.management.passenger.dto.CreateUserDto;
-import co.edu.uni.acme.ariline.management.passenger.repository.FlightUserRepository;
 import co.edu.uni.acme.ariline.management.passenger.repository.UserRepository;
 import co.edu.uni.acme.ariline.management.passenger.service.ICreateUserService;
 import lombok.RequiredArgsConstructor;

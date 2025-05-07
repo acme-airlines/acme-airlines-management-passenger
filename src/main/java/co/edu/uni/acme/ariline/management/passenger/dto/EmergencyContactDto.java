@@ -10,7 +10,7 @@ public class EmergencyContactDto {
     private String name;
 
     @NotBlank
-    private String relationship;
+    private String relationShip;
 
     @NotBlank
     private String phone;
