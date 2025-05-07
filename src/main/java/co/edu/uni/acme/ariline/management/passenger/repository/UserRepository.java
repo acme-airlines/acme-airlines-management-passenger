@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity,String> {
 
-    int countByCodeFlightFk_CodeFlight(String codeFlight);
 }

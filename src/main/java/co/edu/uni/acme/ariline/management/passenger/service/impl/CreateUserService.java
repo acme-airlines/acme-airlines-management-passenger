@@ -1,12 +1,12 @@
 package co.edu.uni.acme.ariline.management.passenger.service.impl;
 
 import co.edu.uni.acme.aerolinea.commons.entity.FlightEntity;
-import co.edu.uni.acme.aerolinea.commons.entity.PassengerEntity;
-import co.edu.uni.acme.aerolinea.commons.utils.mappers.PassengerMapper;
-import co.edu.uni.acme.ariline.management.passenger.dto.CreatePassengerDto;
-import co.edu.uni.acme.ariline.management.passenger.repository.FlightPassengerRepository;
-import co.edu.uni.acme.ariline.management.passenger.repository.PassengerUserRepository;
-import co.edu.uni.acme.ariline.management.passenger.service.ICreatePassengerService;
+import co.edu.uni.acme.aerolinea.commons.entity.UserEntity;
+import co.edu.uni.acme.aerolinea.commons.utils.mappers.UserMapper;
+import co.edu.uni.acme.ariline.management.passenger.dto.CreateUserDto;
+import co.edu.uni.acme.ariline.management.passenger.repository.FlightUserRepository;
+import co.edu.uni.acme.ariline.management.passenger.repository.UserRepository;
+import co.edu.uni.acme.ariline.management.passenger.service.ICreateUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -26,9 +26,8 @@ import java.util.List;
 @Log4j2
 public class CreateUserService implements ICreateUserService {
 
-    private final PassengerUserRepository passengerUserRepository;
-    private final PassengerMapper passengerMapper;
-    private final FlightPassengerRepository flightRepository;
+    private final UserRepository UserUserRepository;
+    private final UserMapper UserMapper;
 
     private static final SecureRandom random = new SecureRandom();
     private static final String LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -37,12 +36,12 @@ public class CreateUserService implements ICreateUserService {
 
     @Override
     @Transactional
-    public Boolean createPassenger(CreatePassengerDto passengerDTO) {
+    public Boolean createUser(CreateUserDto UserDTO) {
         try {
-            log.info("🚀 Iniciando creación de pasajero: {}", passengerDTO);
+            log.info("🚀 Iniciando creación de pasajero: {}", UserDTO);
 
-            int edad = java.time.Period.between(passengerDTO.getBirthDate(), LocalDate.now()).getYears();
-            if (edad < 18 && passengerDTO.getEmergencyContact() == null) {
+            int edad = java.time.Period.between(UserDTO.getBirthDate(), LocalDate.now()).getYears();
+            if (edad < 18 && UserDTO.getEmergencyContact() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Los menores de edad deben tener un contacto de emergencia.");
             }
 
@@ -50,26 +49,18 @@ public class CreateUserService implements ICreateUserService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Edad no válida para el pasajero.");
             }
 
-            FlightEntity vuelo = flightRepository.findById(passengerDTO.getCodeFlight())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vuelo no encontrado"));
-
-            int pasajerosActuales = passengerUserRepository.countByCodeFlightFk_CodeFlight(passengerDTO.getCodeFlight());
-            if (pasajerosActuales >= vuelo.getCapacity()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El vuelo ya alcanzó su capacidad máxima.");
-            }
 
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            passengerDTO.setHashPassword(passwordEncoder.encode(passengerDTO.getPassword()));
-            passengerDTO.setCreationDate(LocalDate.now());
-            passengerDTO.setCodePassenger(generarCodigo());
+            UserDTO.setHashPassword(passwordEncoder.encode(UserDTO.getPassword()));
+            UserDTO.setCreationDate(LocalDate.now());
+            UserDTO.setCodeUser(generarCodigo());
 
-            PassengerEntity entity = passengerMapper.dtoToEntity(passengerDTO);
-            entity.setCodeFlightFk(vuelo);
+            UserEntity entity = UserMapper.dtoToEntity(UserDTO);
 
             log.info("🗃️ Entidad lista para guardar: {}", entity);
-            passengerUserRepository.save(entity);
+            UserUserRepository.save(entity);
 
-            log.info("✅ Pasajero creado exitosamente con código: {}", entity.getCodePassenger());
+            log.info("✅ Pasajero creado exitosamente con código: {}", entity.getCodeUser());
             return true;
 
         } catch (ResponseStatusException e) {
