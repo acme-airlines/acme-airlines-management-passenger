@@ -1,14 +1,19 @@
 package co.edu.uni.acme.ariline.management.passenger.service.impl;
 
-import co.edu.uni.acme.aerolinea.commons.utils.mappers.UserMapper;
-import co.edu.uni.acme.ariline.management.passenger.dto.CreateUserDto;
-import co.edu.uni.acme.ariline.management.passenger.repository.UserRepository;
-import co.edu.uni.acme.ariline.management.passenger.service.ICreateUserService;
+import co.edu.uni.acme.aerolinea.commons.entity.FlightEntity;
+import co.edu.uni.acme.aerolinea.commons.entity.PassengerEntity;
+import co.edu.uni.acme.aerolinea.commons.utils.mappers.PassengerMapper;
+import co.edu.uni.acme.ariline.management.passenger.dto.CreatePassengerDto;
+import co.edu.uni.acme.ariline.management.passenger.repository.FlightPassengerRepository;
+import co.edu.uni.acme.ariline.management.passenger.repository.PassengerUserRepository;
+import co.edu.uni.acme.ariline.management.passenger.service.ICreatePassengerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -21,53 +26,73 @@ import java.util.List;
 @Log4j2
 public class CreateUserService implements ICreateUserService {
 
-    private final UserRepository userRepository;
+    private final PassengerUserRepository passengerUserRepository;
+    private final PassengerMapper passengerMapper;
+    private final FlightPassengerRepository flightRepository;
 
-    private final UserMapper userMapper;
-
+    private static final SecureRandom random = new SecureRandom();
     private static final String LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final String NUMEROS = "0123456789";
     private static final String TODOS = LETRAS + NUMEROS;
-    private static final SecureRandom random = new SecureRandom();
 
     @Override
     @Transactional
-    public Boolean createUser(CreateUserDto userDto) {
-        boolean create = false;
-        try{
+    public Boolean createPassenger(CreatePassengerDto passengerDTO) {
+        try {
+            log.info("🚀 Iniciando creación de pasajero: {}", passengerDTO);
+
+            int edad = java.time.Period.between(passengerDTO.getBirthDate(), LocalDate.now()).getYears();
+            if (edad < 18 && passengerDTO.getEmergencyContact() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Los menores de edad deben tener un contacto de emergencia.");
+            }
+
+            if (edad < 0 || edad > 120) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Edad no válida para el pasajero.");
+            }
+
+            FlightEntity vuelo = flightRepository.findById(passengerDTO.getCodeFlight())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vuelo no encontrado"));
+
+            int pasajerosActuales = passengerUserRepository.countByCodeFlightFk_CodeFlight(passengerDTO.getCodeFlight());
+            if (pasajerosActuales >= vuelo.getCapacity()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El vuelo ya alcanzó su capacidad máxima.");
+            }
+
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            userDto.setCreationDate(LocalDate.now());
-            userDto.setCodeUser(generarCodigo());
-            userDto.setHashPassword(passwordEncoder.encode(userDto.getPassword()));
-            userRepository.save(userMapper.dtoToEntity(userDto));
-            create = true;
-        }catch(Exception ex){
-            log.error("Error ", ex);
+            passengerDTO.setHashPassword(passwordEncoder.encode(passengerDTO.getPassword()));
+            passengerDTO.setCreationDate(LocalDate.now());
+            passengerDTO.setCodePassenger(generarCodigo());
+
+            PassengerEntity entity = passengerMapper.dtoToEntity(passengerDTO);
+            entity.setCodeFlightFk(vuelo);
+
+            log.info("🗃️ Entidad lista para guardar: {}", entity);
+            passengerUserRepository.save(entity);
+
+            log.info("✅ Pasajero creado exitosamente con código: {}", entity.getCodePassenger());
+            return true;
+
+        } catch (ResponseStatusException e) {
+            log.error("❌ Error controlado al crear pasajero: {}", e.getReason());
+            throw e;
+        } catch (Exception ex) {
+            log.error("❌ Error inesperado al crear pasajero: {}", ex.getMessage(), ex);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error inesperado al crear pasajero.");
         }
-        return create;
     }
 
-    public  String generarCodigo() {
-        // Se asegura de incluir al menos una letra y un número.
+    public String generarCodigo() {
         List<Character> caracteres = new ArrayList<>(10);
         caracteres.add(LETRAS.charAt(random.nextInt(LETRAS.length())));
         caracteres.add(NUMEROS.charAt(random.nextInt(NUMEROS.length())));
-
-        // Rellena los 8 caracteres restantes con letras y números al azar.
         for (int i = 2; i < 10; i++) {
             caracteres.add(TODOS.charAt(random.nextInt(TODOS.length())));
         }
-
-        // Mezcla los caracteres para que la letra y el número iniciales se distribuyan aleatoriamente.
         Collections.shuffle(caracteres, random);
-
-        // Construye y retorna la cadena resultante.
         StringBuilder codigo = new StringBuilder();
         for (char c : caracteres) {
             codigo.append(c);
         }
         return codigo.toString();
     }
-
 }
-
