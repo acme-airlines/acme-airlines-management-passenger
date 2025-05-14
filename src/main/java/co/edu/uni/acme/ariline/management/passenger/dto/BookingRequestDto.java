@@ -15,4 +15,5 @@ public class BookingRequestDto {
 
     private List<AdditionalPassengerDto>  additionalPassengers;
 
+
 }

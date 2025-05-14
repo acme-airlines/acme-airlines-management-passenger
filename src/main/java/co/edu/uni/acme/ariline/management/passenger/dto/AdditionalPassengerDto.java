@@ -28,4 +28,6 @@ public class AdditionalPassengerDto {
 
     private EmergencyContactDto emergencyContact;
 
+    private String rol;
+
 }

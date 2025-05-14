@@ -24,4 +24,6 @@ public class MainPassengerDto {
 
     private CompanionDto companion;
 
+    private String rol;
+
 }

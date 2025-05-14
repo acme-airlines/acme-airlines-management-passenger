@@ -16,9 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static co.edu.uni.acme.ariline.management.passenger.utils.constantes.Constants.*;
 
@@ -41,11 +39,11 @@ public class CreatePassengerService implements ICreatePassengerService {
 
     @Override
     @Transactional
-    public List<String> createPassenger(BookingRequestDto booking) {
+    public Map<String, String> createPassenger(BookingRequestDto booking) {
         String flightCode     = booking.getCodeFlight();
         String feeCode        = booking.getFeeCode();
         String codeCompanion  = null;
-        List<String> codes    = new ArrayList<>();
+        Map<String, String>   codes = new HashMap<>();
 
         Long capacity = Helpers.checkType(
                 flightRepository.capacityFlight(flightCode).get(0)[0],
@@ -73,11 +71,11 @@ public class CreatePassengerService implements ICreatePassengerService {
                 );
             }
             codeCompanion = saveCompanion(comp, flightCode, feeCode);
-            codes.add(codeCompanion);
+            codes.put(comp.getRol(),codeCompanion);
         }
 
         String mainCode = saveMainPassenger(main, flightCode, feeCode, codeCompanion);
-        codes.add(mainCode);
+        codes.put(main.getRol(),mainCode);
 
         booking.getAdditionalPassengers().forEach(add -> {
             if (add.isSpecialCondition() && add.getEmergencyContact() == null) {
@@ -92,7 +90,7 @@ public class CreatePassengerService implements ICreatePassengerService {
             }
 
             String additionalCode = saveAdditionalPassenger(add, flightCode, feeCode);
-            codes.add(additionalCode);
+            codes.put(add.getRol(),additionalCode);
 
             EmergencyContactDto ec = add.getEmergencyContact();
             if (ec != null) {

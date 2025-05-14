@@ -24,4 +24,6 @@ public class CompanionDto {
 
     private String relationShip;
 
+    private String rol;
+
 }

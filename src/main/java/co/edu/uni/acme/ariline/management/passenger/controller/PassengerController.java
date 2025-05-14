@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/passenger")
@@ -20,7 +21,7 @@ public class PassengerController {
     private final ICreatePassengerService iCreatePassengerService;
 
     @PostMapping("create")
-    public ResponseEntity<List<String>> createPassenger(@RequestBody BookingRequestDto booking) {
+    public ResponseEntity<Map<String,String>> createPassenger(@RequestBody BookingRequestDto booking) {
         return ResponseEntity.ok(iCreatePassengerService.createPassenger(booking));
     }
 
